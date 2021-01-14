@@ -1,1 +1,4 @@
 *.idea
+*.class
+cloudsim-cloudsim-4.0/modules/cloudsim/target/
+cloudsim-cloudsim-4.0/modules/cloudsim-examples/target/
