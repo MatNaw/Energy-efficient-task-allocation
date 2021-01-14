@@ -1,0 +1,9 @@
+# Author: Mateusz Nawrot
+reset;
+
+model power.mod;
+data power.dat;
+option solver lpsolve;
+
+objective Rating;
+solve;

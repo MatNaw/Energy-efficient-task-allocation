@@ -1,25 +1,36 @@
 package org.cloudbus.cloudsim.examples.power.my_power_aware;
 
+import org.cloudbus.cloudsim.examples.power.random.MadMmt;
 import org.cloudbus.cloudsim.examples.power.random.RandomRunner;
 
 import java.io.IOException;
+import java.net.URL;
 
 public class PowerAwareAttempt {
     /**
      * The main method.
+     * <p>
+     * Based on:
      *
      * @param args the arguments
      * @throws IOException Signals that an I/O exception has occurred.
+     * @see MadMmt
      */
-    public static void main(String[] args) throws IOException {
-        boolean enableOutput = true;
-        boolean outputToFile = false;
+    public static void main(final String[] args) throws IOException {
+        final boolean enableOutput = true;
+        final boolean outputToFile = false;
+
+        final URL url = MadMmt.class.getClassLoader().getResource("workload/my_power_aware");
         String inputFolder = "";
-        String outputFolder = "";
-        String workload = "random"; // Random workload
-        String vmAllocationPolicy = "mad"; // Median Absolute Deviation (MAD) VM allocation policy
-        String vmSelectionPolicy = "mmt"; // Minimum Migration Time (MMT) VM selection policy
-        String parameter = "2.5"; // the safety parameter of the MAD policy
+        if (url != null) {
+            inputFolder = url.getPath();
+        }
+
+        final String outputFolder = "";
+        final String workload = "20110303"; // workload copied from planetlab
+        final String vmAllocationPolicy = "mad"; // Median Absolute Deviation (MAD) VM allocation policy
+        final String vmSelectionPolicy = "mmt"; // Minimum Migration Time (MMT) VM selection policy
+        final String parameter = "2.5"; // the safety parameter of the MAD policy
 
         new RandomRunner(
                 enableOutput,
@@ -32,20 +43,3 @@ public class PowerAwareAttempt {
                 parameter);
     }
 }
-/** TODO original comment for random/MadMmt.java
- * A simulation of a heterogeneous power aware data center that applies the Median Absolute
- * Deviation (MAD) VM allocation policy and Minimum Migration Time (MMT) VM selection policy.
- *
- * The remaining configuration parameters are in the Constants and RandomConstants classes.
- *
- * If you are using any algorithms, policies or workload included in the power package please cite
- * the following paper:
- *
- * Anton Beloglazov, and Rajkumar Buyya, "Optimal Online Deterministic Algorithms and Adaptive
- * Heuristics for Energy and Performance Efficient Dynamic Consolidation of Virtual Machines in
- * Cloud Data Centers", Concurrency and Computation: Practice and Experience (CCPE), Volume 24,
- * Issue 13, Pages: 1397-1420, John Wiley & Sons, Ltd, New York, USA, 2012
- *
- * @author Anton Beloglazov
- * @since Jan 5, 2012
-*/
