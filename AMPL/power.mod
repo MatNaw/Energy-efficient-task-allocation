@@ -64,7 +64,7 @@ subject to unique_server_state {n in SERVERS}: sum {q in SERVER_EAS} server_in_e
 #3
 subject to sum_vms_efficiency {n in SERVERS}:
 			sum {m in VMS} (vm_required_efficiency[m] * vm_in_server[m,n]) <= 
-				sum {q in SERVER_EAS} (server_energetic_cost[n,q] * server_in_eas[n,q]);
+				sum {q in SERVER_EAS} (server_efficiency_in_eas[n,q] * server_in_eas[n,q]);
 #4
 subject to one_vm_per_server {m in VMS}: sum {n in SERVERS} vm_in_server[m,n] = 1;
 #5
@@ -73,7 +73,19 @@ subject to check_if_switch_used_1 {d in VMS_DEMAND, r in SWITCHES}:
 #6
 subject to check_if_switch_used_2 {d in VMS_DEMAND, r in SWITCHES}:
 			sum {e in LINKS} (switch_input[e,r] * demand_in_link[d,e]) <= switch_used[r];
+#7
+subject to server_flow_rule {d in VMS_DEMAND, m in VMS, n in SERVERS}:
+			sum {e in LINKS} (server_output[e,n] * demand_in_link[d,e] - server_input[e,n] * demand_in_link[d,e]) = 
+					vm_in_server[m,member(source_nodes[d], SERVERS)] - vm_in_server[m,member(destination_nodes[d], SERVERS)];
+#8
+subject to switch_flow_rule {d in VMS_DEMAND, r in SWITCHES}:
+			sum {e in LINKS} (switch_output[e,r] * demand_in_link[d,e]) - sum {e in LINKS} (switch_input[e,r] * demand_in_link[d,e]) = 0;
+#9
+subject to demand_sum_limit {e in LINKS}:
+			sum {d in VMS_DEMAND} (network_traffic_demand[d] * demand_in_link[d,e]) <= sum {k in LINK_EAS} (link_capacity[e,k] * link_eas_used[e,k]);
 
+######### Test subjects to solve the zero-solution issue #########
+######### 1. Division of subject #7 into two separate subjects -> no effect
 #7a
 #subject to server_flow_rule_output {d in VMS_DEMAND, m in VMS, n in SERVERS}:
 #			sum {e in LINKS} (server_output[e,n] * demand_in_link[d,e]) = vm_in_server[m,member(source_nodes[d], SERVERS)];
@@ -81,16 +93,13 @@ subject to check_if_switch_used_2 {d in VMS_DEMAND, r in SWITCHES}:
 #subject to server_flow_rule_input {d in VMS_DEMAND, m in VMS, n in SERVERS}:
 #			sum {e in LINKS} (server_input[e,n] * demand_in_link[d,e]) = vm_in_server[m,member(destination_nodes[d], SERVERS)];
 
+######### 2. Right side of original subject #7 changed to '0' -> some returned values are non-zero, but
+######### 	 it seems that the VMs are simply placed in the single server. Maybe that will change when whole energetic model is introduced.
 #7
-subject to server_flow_rule {d in VMS_DEMAND, m in VMS, n in SERVERS}:
-			sum {e in LINKS} (server_output[e,n] * demand_in_link[d,e] - server_input[e,n] * demand_in_link[d,e]) = 0;
-#					vm_in_server[m,member(source_nodes[d], SERVERS)] - vm_in_server[m,member(destination_nodes[d], SERVERS)];
-#8
-subject to switch_flow_rule {d in VMS_DEMAND, r in SWITCHES}:
-			sum {e in LINKS} (switch_output[e,r] * demand_in_link[d,e]) - sum {e in LINKS} (switch_input[e,r] * demand_in_link[d,e]) = 0;
-#9
-subject to demand_sum_limit {e in LINKS}:
-			sum {d in VMS_DEMAND} (network_traffic_demand[d] * demand_in_link[d,e]) <= sum {k in LINK_EAS} (link_capacity[e,k] * link_eas_used[e,k]);
+#subject to server_flow_rule {d in VMS_DEMAND, m in VMS, n in SERVERS}:
+#			sum {e in LINKS} (server_output[e,n] * demand_in_link[d,e] - server_input[e,n] * demand_in_link[d,e]) = 0;
+
+
 
 ######### Objective function #########
 # Server costs
@@ -102,5 +111,4 @@ var router_costs = sum {r in SWITCHES} (const_router_cost[r] * switch_used[r]);
 
 var total_cost = server_costs + link_costs + router_costs;
 
-#maximize TotalCost: total_cost;
 minimize TotalCost: total_cost;
