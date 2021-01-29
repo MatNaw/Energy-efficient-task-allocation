@@ -1,7 +1,9 @@
 # Author: Mateusz Nawrot
 
 ######### Declarations #########
-set SERVERS;
+set SERVERS ordered;
+set INPUT_SERVERS;
+set OUTPUT_SERVERS;
 set SERVER_EAS;
 set VMS;
 set VMS_DEMAND;
@@ -16,8 +18,8 @@ param server_output {e in LINKS, n in SERVERS};
 param server_input {e in LINKS, n in SERVERS};
 
 param network_traffic_demand {d in VMS_DEMAND};
-#param source_nodes {d in VMS_DEMAND};
-#param destination_nodes {d in VMS_DEMAND};
+param source_nodes {d in VMS_DEMAND};
+param destination_nodes {d in VMS_DEMAND};
 param server_efficiency_in_eas {n in SERVERS, q in SERVER_EAS};
 param vm_required_efficiency {m in VMS};
 
@@ -56,7 +58,7 @@ subject to server_input_binary_2 {e in LINKS, n in SERVERS}:
 			server_input[e,n] <=1;
 
 #1
-subject to max_capacity {e in LINKS}: sum {k in LINK_EAS} link_eas_used[e,k] <= 1; # = 1?
+subject to max_capacity {e in LINKS}: sum {k in LINK_EAS} link_eas_used[e,k] <= 1;
 #2
 subject to unique_server_state {n in SERVERS}: sum {q in SERVER_EAS} server_in_eas[n,q] <= 1;
 #3
@@ -67,20 +69,22 @@ subject to sum_vms_efficiency {n in SERVERS}:
 subject to one_vm_per_server {m in VMS}: sum {n in SERVERS} vm_in_server[m,n] = 1;
 #5
 subject to check_if_switch_used_1 {d in VMS_DEMAND, r in SWITCHES}: 
-			sum {e in LINKS} (switch_output[e,r] * demand_in_link[d,e]) <= switch_used[r]; #1;
+			sum {e in LINKS} (switch_output[e,r] * demand_in_link[d,e]) <= switch_used[r];
 #6
 subject to check_if_switch_used_2 {d in VMS_DEMAND, r in SWITCHES}:
-			sum {e in LINKS} (switch_input[e,r] * demand_in_link[d,e]) <= switch_used[r]; #1;
-#7a testing
-#subject to server_flow_rule_1 {d in VMS_DEMAND, m in VMS, n in SERVERS}:
-#			sum {e in LINKS} (server_output[e,n] * demand_in_link[d,e]) = vm_in_server[m,'N1'];
+			sum {e in LINKS} (switch_input[e,r] * demand_in_link[d,e]) <= switch_used[r];
+
+#7a
+#subject to server_flow_rule_output {d in VMS_DEMAND, m in VMS, n in SERVERS}:
+#			sum {e in LINKS} (server_output[e,n] * demand_in_link[d,e]) = vm_in_server[m,member(source_nodes[d], SERVERS)];
 #7b
-#subject to server_flow_rule_2 {d in VMS_DEMAND, m in VMS, n in SERVERS}:
-#				sum {e in LINKS} (server_input[e,n] * demand_in_link[d,e]) = vm_in_server[m,'N2'];
+#subject to server_flow_rule_input {d in VMS_DEMAND, m in VMS, n in SERVERS}:
+#			sum {e in LINKS} (server_input[e,n] * demand_in_link[d,e]) = vm_in_server[m,member(destination_nodes[d], SERVERS)];
+
 #7
 subject to server_flow_rule {d in VMS_DEMAND, m in VMS, n in SERVERS}:
-			sum {e in LINKS} (server_output[e,n] * demand_in_link[d,e] - server_input[e,n] * demand_in_link[d,e]) =
-					vm_in_server[m,n] - vm_in_server[m,n];
+			sum {e in LINKS} (server_output[e,n] * demand_in_link[d,e] - server_input[e,n] * demand_in_link[d,e]) = 0;
+#					vm_in_server[m,member(source_nodes[d], SERVERS)] - vm_in_server[m,member(destination_nodes[d], SERVERS)];
 #8
 subject to switch_flow_rule {d in VMS_DEMAND, r in SWITCHES}:
 			sum {e in LINKS} (switch_output[e,r] * demand_in_link[d,e]) - sum {e in LINKS} (switch_input[e,r] * demand_in_link[d,e]) = 0;
@@ -96,6 +100,7 @@ var link_costs = sum {e in LINKS, k in LINK_EAS} (link_energetic_cost[e,k] * lin
 # Router costs
 var router_costs = sum {r in SWITCHES} (const_router_cost[r] * switch_used[r]);
 
-var total_cost = server_costs + link_costs + router_costs + sum {d in VMS_DEMAND, e in LINKS} demand_in_link[d,e];
+var total_cost = server_costs + link_costs + router_costs;
 
-maximize TotalCost: total_cost;
+#maximize TotalCost: total_cost;
+minimize TotalCost: total_cost;

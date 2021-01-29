@@ -26,3 +26,5 @@ display link_eas_used;
 display switch_used;
 
 display {e in LINKS} sum {k in LINK_EAS} link_eas_used[e,k];
+display sum {d in VMS_DEMAND, e in LINKS} demand_in_link[d,e];
+display {m in VMS} sum {n in SERVERS} vm_in_server[m,n];

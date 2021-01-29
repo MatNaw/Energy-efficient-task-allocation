@@ -11,60 +11,60 @@ set LINK_EAS := K1 K2 K3 K4;
 ######### Switch
 param switch_output:
 	R1				:=
-E1	0#0
+E1	0
 E2	1
 E3	1
-E4	0#0
+E4	0
 ;
 
 param switch_input:
 	R1				:=
 E1	1
-E2	0#0
-E3	0#0
+E2	0
+E3	0
 E4	1
 ;
 
 ######### Server
 param server_output:
 	N1	N2			:=
-E1	1	0#1 0
-E2	0	0#0 0
-E3	0	0#0	0
-E4	0	1#0	1
+E1	1	0
+E2	0	0
+E3	0	0
+E4	0	1
 ;
 
 param server_input:
 	N1	N2			:=
-E1	0	0#0 0
-E2	1	0#1 0
-E3	0	1#0	1
-E4	0	0#0	0
+E1	0	0
+E2	1	0
+E3	0	1
+E4	0	0
 ;
 
 ######### Network demand
 param network_traffic_demand :=
-D1	10
-D2	10
+D1	25
+D2	25
 ;
 
 ######### Source node for demand
-#param source_nodes :=
-#D1	0#0
-#D2	1
-#;
+param source_nodes :=
+D1	1
+D2	2
+;
 
 ######### Destination node for demand
-#param destination_nodes :=
-#D1	1
-#D2	0#0
-#;
+param destination_nodes :=
+D1	2
+D2	1
+;
 
 ######### Server efficiency
 param server_efficiency_in_eas: 
 	Q1		Q2			:=
-N1	0.72	0	#0.72	0
-N2	0		0.89#0		0.89
+N1	0.72	0.51
+N2	0.63	0.89
 ;
 
 ######### VM required efficiency
@@ -76,8 +76,8 @@ M2	0.7
 ######### Server energetic cost
 param server_energetic_cost:
 	Q1	Q2			:=
-N1	3	7
-N2	7	6
+N1	9	7
+N2	7	11
 ;
 
 ######### Link capacity
@@ -88,6 +88,7 @@ E2	11	9	13	6
 E3	14	16	16	18
 E4	8	15	22	14
 ;
+
 ######### Link energetic cost
 param link_energetic_cost:
 	K1	K2	K3	K4			:=
@@ -96,6 +97,7 @@ E2	2	4	9	6
 E3	6	3	5	8
 E4	4	7	4	2
 ;
+
 ######### Router cost
 param const_router_cost :=
 R1	100
