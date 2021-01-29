@@ -5,5 +5,24 @@ model power.mod;
 data power.dat;
 option solver lpsolve;
 
-objective Rating;
+objective TotalCost;
 solve;
+
+printf "TotalCost: %.4f\n", TotalCost;
+
+display server_costs;
+display link_costs;
+display router_costs;
+
+#display switch_output;
+#display switch_input;
+#display server_output;
+#display server_input;
+
+display vm_in_server;
+display server_in_eas;
+display demand_in_link;
+display link_eas_used;
+display switch_used;
+
+display {e in LINKS} sum {k in LINK_EAS} link_eas_used[e,k];
