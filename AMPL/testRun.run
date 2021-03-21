@@ -1,0 +1,15 @@
+objective TotalCost;
+solve;
+
+printf "TotalCost: %.4f\n", TotalCost;
+
+display server_costs;
+display link_costs;
+display cost_in_eas_1;
+display cost_in_eas_2;
+display cost_in_eas_3;
+display eas_1;
+display eas_2;
+display eas_3;
+display server_in_eas;
+display server_energetic_cost;

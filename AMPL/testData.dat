@@ -1,0 +1,31 @@
+set SERVERS := S1 S2;
+set SERVERS_EAS := SE1 SE2;
+set LINKS := L1 L2;
+set DEMAND := D1 D2;
+
+param server_output:
+	S1	S2	:=
+L1	1	0
+L2	0	1
+;
+param server_input:
+	S1	S2	:=
+L1	0	1
+L2	1	0
+;
+
+param demand :=
+D1 15
+D2 41
+;
+
+param server_efficiency_in_eas: 
+	SE1		SE2			:=
+S1	0.72	0.51
+S2	0.63	0.89
+;
+param server_energetic_cost:
+	SE1	SE2			:=
+S1	9	7
+S2	7	11
+;
