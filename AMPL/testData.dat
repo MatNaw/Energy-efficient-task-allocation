@@ -1,31 +1,67 @@
+# Author: Mateusz Nawrot
+
 set SERVERS := S1 S2;
 set SERVERS_EAS := SE1 SE2;
 set LINKS := L1 L2;
-set DEMAND := D1 D2;
+set LINKS_EAS := LE1 LE2;
+set DEMANDS := D1 D2;
+set VMS := V1 V2;
 
-param server_output:
-	S1	S2	:=
-L1	1	0
-L2	0	1
-;
+######### Server #########
+
+### Server I/O
 param server_input:
 	S1	S2	:=
 L1	0	1
 L2	1	0
 ;
-
-param demand :=
-D1 15
-D2 41
+param server_output:
+	S1	S2	:=
+L1	1	0
+L2	0	1
 ;
 
+### Server efficiency
 param server_efficiency_in_eas: 
 	SE1		SE2			:=
 S1	0.72	0.51
 S2	0.63	0.89
 ;
+
+### Server energetic cost
 param server_energetic_cost:
-	SE1	SE2			:=
-S1	9	7
-S2	7	11
+	SE1		SE2			:=
+S1	9		7
+S2	7		11
+;
+
+######### Link #########
+
+### Link capacity
+param link_capacity:
+	LE1		LE2			:=
+L1	19		11
+L2	11		50
+;
+### Link energetic cost
+param link_energetic_cost:
+	LE1		LE2			:=
+L1	23		15
+L2	17		26
+;
+
+######### Demands #########
+
+### Task demand
+param task_demand :=
+D1 15
+D2 41
+;
+
+######### VMs #########
+
+### VM required efficiency
+param vm_required_efficiency :=
+V1	0.7
+V2	0.7
 ;
