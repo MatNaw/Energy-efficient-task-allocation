@@ -53,7 +53,7 @@ L2	17		26
 ######### Demands #########
 
 ### Task demand
-param task_demand :=
+param network_traffic_demand :=
 D1 15
 D2 41
 ;

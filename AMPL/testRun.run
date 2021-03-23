@@ -8,7 +8,8 @@ printf "TotalCost: %.4f\n", TotalCost;
 display server_costs;
 display link_costs;
 
-printf "Flags:\n";
+printf "Binary variables:\n";
 display server_in_eas;
 display link_in_eas;
 display demand_in_link;
+display vm_in_server;
