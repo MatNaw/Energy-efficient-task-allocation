@@ -3,7 +3,7 @@
 ################## Sets ##################
 set SERVERS := S1 S2;
 set SERVERS_EAS := SE1 SE2;
-set LINKS := L1 L2;
+set LINKS := L1 L2 L3 L4;
 set LINKS_EAS := LE1 LE2;
 set ROUTERS := R1 R2;
 set DEMANDS := D1 D2;
@@ -13,13 +13,17 @@ set VMS := V1 V2;
 ######### Servers I/O
 param server_input:
 	S1	S2	:=
-L1	0	1
-L2	1	0
+L1	0	0
+L2	0	0
+L3	0	1
+L4	1	0
 ;
 param server_output:
 	S1	S2	:=
 L1	1	0
 L2	0	1
+L3	0	0
+L4	0	0
 ;
 ######### Servers efficiency
 param server_efficiency_in_eas: 
@@ -40,12 +44,16 @@ param link_capacity:
 	LE1		LE2			:=
 L1	19		11
 L2	11		50
+L3	19		11
+L4	11		50
 ;
 ######### Links energetic cost
 param link_energetic_cost:
 	LE1		LE2			:=
 L1	23		15
 L2	17		26
+L3	23		15
+L4	17		26
 ;
 
 ################## Routers ##################
@@ -54,11 +62,15 @@ param router_input:
 	R1	R2	:=
 L1	1	0
 L2	0	1
+L3	0	0
+L4	0	0
 ;
 param router_output:
 	R1	R2	:=
-L1	1	0
-L2	0	1
+L1	0	0
+L2	0	0
+L3	1	0
+L4	0	1
 ;
 ######### Routers usage cost
 param router_usage_cost :=

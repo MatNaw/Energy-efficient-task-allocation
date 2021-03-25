@@ -43,7 +43,7 @@ subject to unique_server_state {s in SERVERS}: sum {se in SERVERS_EAS} server_in
 subject to unique_link_state {l in LINKS}: sum {le in LINKS_EAS} link_in_eas[l,le] = 1;			# >= 1
 
 # Demand-to-link assignment must be unique
-subject to unique_demand_in_link {d in DEMANDS}: sum {l in LINKS} demand_in_link[d,l] = 1;		# >= 1
+subject to unique_demand_in_link {d in DEMANDS}: sum {l in LINKS} demand_in_link[d,l] >= 1;		# >= 1
 
 # VM-to-server assignment must be unique
 subject to unique_vm_in_server {v in VMS}: sum {s in SERVERS} vm_in_server[v,s] = 1;			# >= 1

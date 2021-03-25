@@ -22,3 +22,14 @@ display member(demand_tasks_destination_nodes['D1'], SERVERS);
 printf "D2 demand:\n";
 display member(demand_tasks_source_nodes['D2'], SERVERS);
 display member(demand_tasks_destination_nodes['D2'], SERVERS);
+
+printf "Source nodes:\n";
+display vm_in_server['V1',member(demand_tasks_source_nodes['D1'], SERVERS)];
+display vm_in_server['V1',member(demand_tasks_source_nodes['D2'], SERVERS)];
+display vm_in_server['V2',member(demand_tasks_source_nodes['D1'], SERVERS)];
+display vm_in_server['V2',member(demand_tasks_source_nodes['D2'], SERVERS)];
+printf "Destination nodes:\n";
+display vm_in_server['V1',member(demand_tasks_destination_nodes['D1'], SERVERS)];
+display vm_in_server['V1',member(demand_tasks_destination_nodes['D2'], SERVERS)];
+display vm_in_server['V2',member(demand_tasks_destination_nodes['D1'], SERVERS)];
+display vm_in_server['V2',member(demand_tasks_destination_nodes['D2'], SERVERS)];
