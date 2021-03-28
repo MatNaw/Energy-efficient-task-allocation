@@ -1,41 +1,53 @@
 # Author: Mateusz Nawrot
 
 ################## Sets ##################
-set SERVERS := S1 S2;
+set SERVERS := S1 S2 S3 S4;
 set SERVERS_EAS := SE1 SE2;
-set LINKS := L1 L2 L3 L4;
+set LINKS := L1 L2 L3 L4 L5 L6 L7 L8;
 set LINKS_EAS := LE1 LE2;
 set ROUTERS := R1 R2;
-set DEMANDS := D1 D2;
+set DEMANDS := D1 D2 D3 D4;
 set VMS := V1 V2;
 
 ################## Servers ##################
 ######### Servers I/O
 param server_input:
-	S1	S2	:=
-L1	0	0
-L2	0	0
-L3	0	1
-L4	1	0
+	S1	S2	S3	S4	:=
+L1	0	0	0	0
+L2	1	0	0	0
+L3	0	0	0	0
+L4	0	1	0	0
+L5	0	0	0	0
+L6	0	0	1	0
+L7	0	0	0	0
+L8	0	0	0	1
 ;
 param server_output:
-	S1	S2	:=
-L1	1	0
-L2	0	1
-L3	0	0
-L4	0	0
+	S1	S2	S3	S4	:=
+L1	1	0	0	0
+L2	0	0	0	0
+L3	0	1	0	0
+L4	0	0	0	0
+L5	0	0	1	0
+L6	0	0	0	0
+L7	0	0	0	1
+L8	0	0	0	0
 ;
 ######### Servers efficiency
 param server_efficiency_in_eas: 
 	SE1		SE2			:=
 S1	0.72	0.51
 S2	0.63	0.89
+S3	0.99	0.89
+S4	0.42	0.42	#0.42	0.42
 ;
 ######### Servers energetic cost
 param server_energetic_cost:
 	SE1		SE2			:=
 S1	9		7
 S2	7		11
+S3	24		19
+S4	4		4
 ;
 
 ################## Links ##################
@@ -46,6 +58,10 @@ L1	19		11
 L2	11		50
 L3	19		11
 L4	11		50
+L5	60		65
+L6	45		50
+L7	14		14
+L8	14		14
 ;
 ######### Links energetic cost
 param link_energetic_cost:
@@ -54,6 +70,10 @@ L1	23		15
 L2	17		26
 L3	23		15
 L4	17		26
+L5	39		45
+L6	33		35
+L7	7		9
+L8	8		8
 ;
 
 ################## Routers ##################
@@ -62,38 +82,52 @@ param router_input:
 	R1	R2	:=
 L1	1	0
 L2	0	1
-L3	0	0
-L4	0	0
+L3	1	0
+L4	0	1
+L5	1	0
+L6	0	1
+L7	1	0
+L8	0	1
 ;
 param router_output:
 	R1	R2	:=
-L1	0	0
-L2	0	0
+L1	1	0
+L2	0	1
 L3	1	0
 L4	0	1
+L5	1	0
+L6	0	1
+L7	1	0
+L8	0	1
 ;
 ######### Routers usage cost
 param router_usage_cost :=
-R1 100
-R2 100
+R1	100
+R2	100
 ;
 
 ################## Demands ##################
 ######### Tasks
 param demand_tasks :=
-D1 15
-D2 41
+D1	15
+D2	41
+D3	15
+D4	41
 ;
 ######### Source nodes for tasks
 param demand_tasks_source_nodes := # source/destination nodes not working!!!!!!
 D1	1
 D2	2
+D3	3
+D4	4
 ;
 
 ######### Destination nodes for tasks
 param demand_tasks_destination_nodes :=
-D1	2
-D2	1
+D1	4
+D2	3
+D3	2
+D4	1
 ;
 
 ################## VMs ##################

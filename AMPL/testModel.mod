@@ -74,6 +74,11 @@ subject to demand_fulfilled {d in DEMANDS}: demand_tasks[d] <= sum {l in LINKS, 
 #subject to servers_flow_rule {d in DEMANDS, v in VMS, s in SERVERS}:
 #	sum {l in LINKS} (server_output[l,s] * demand_in_link[d,l] - server_input[l,s] * demand_in_link[d,l]) = 
 #				vm_in_server[v,member(demand_tasks_source_nodes[d], SERVERS)] - vm_in_server[v,member(demand_tasks_destination_nodes[d], SERVERS)];
+#subject to servers_flow_rule {d in DEMANDS, s in SERVERS}:
+#	sum {l in LINKS} (server_output[l,s] * demand_in_link[d,l] - server_input[l,s] * demand_in_link[d,l]) = 
+#		sum {v in VMS} (vm_in_server[v,member(demand_tasks_source_nodes[d], SERVERS)] - vm_in_server[v,member(demand_tasks_destination_nodes[d], SERVERS)]);
+#		SOMEHOW WE NEED TO GET THE PROPER v	FOR vm_in_server VARIABLES, the above does not work
+
 subject to routers_flow_rule {d in DEMANDS, r in ROUTERS}:
 	sum {l in LINKS} (router_output[l,r] * demand_in_link[d,l]) - sum {l in LINKS} (router_input[l,r] * demand_in_link[d,l]) = 0;
 
