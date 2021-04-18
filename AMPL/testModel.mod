@@ -64,20 +64,27 @@ subject to link_capacity_not_exceeded {l in LINKS}:
 	sum {d in DEMANDS} (demand_tasks[d] * demand_in_link[d,l]) <= sum {le in LINKS_EAS} (link_capacity[l,le] * link_in_eas[l,le]);
 
 # Each demand must be fully covered by assigned links
-subject to demand_fulfilled {d in DEMANDS}: demand_tasks[d] <= sum {l in LINKS, le in LINKS_EAS} (link_capacity[l,le] * demand_in_link[d,l]);
-#### This idea:
-#subject to demand_fulfilled {d in DEMANDS, le in LINKS_EAS}: demand_tasks[d] <= sum {l in LINKS} (link_capacity[l,le] * demand_in_link[d,l]);
-#### is rather NOT working
+#subject to demand_fulfilled {d in DEMANDS}: demand_tasks[d] <= sum {l in LINKS, le in LINKS_EAS} (link_capacity[l,le] * demand_in_link[d,l]);
+subject to demand_fulfilled {d in DEMANDS, l in LINKS}:
+	if (server_output[l,member(demand_tasks_source_nodes[d], SERVERS)] == 1 || server_input[l,member(demand_tasks_destination_nodes[d], SERVERS)] == 1)
+		then demand_tasks[d] <= sum {le in LINKS_EAS} (link_capacity[l,le] * demand_in_link[d,l]);
+
+# potential problem above (we should check each EAS separately, not the sum of all of them)
+# the same may affect other (similar?) subjects
 
 
 ######### Flow rules for servers and routers #########
 #subject to servers_flow_rule {d in DEMANDS, v in VMS, s in SERVERS}:
 #	sum {l in LINKS} (server_output[l,s] * demand_in_link[d,l] - server_input[l,s] * demand_in_link[d,l]) = 
-#				vm_in_server[v,member(demand_tasks_source_nodes[d], SERVERS)] - vm_in_server[v,member(demand_tasks_destination_nodes[d], SERVERS)];
+#		vm_in_server[v,member(demand_tasks_source_nodes[d], SERVERS)] - vm_in_server[v,member(demand_tasks_destination_nodes[d], SERVERS)];
 #subject to servers_flow_rule {d in DEMANDS, s in SERVERS}:
 #	sum {l in LINKS} (server_output[l,s] * demand_in_link[d,l] - server_input[l,s] * demand_in_link[d,l]) = 
 #		sum {v in VMS} (vm_in_server[v,member(demand_tasks_source_nodes[d], SERVERS)] - vm_in_server[v,member(demand_tasks_destination_nodes[d], SERVERS)]);
 #		SOMEHOW WE NEED TO GET THE PROPER v	FOR vm_in_server VARIABLES, the above does not work
+subject to servers_flow_rule {d in DEMANDS}:
+	sum {l in LINKS} (server_output[l,member(demand_tasks_source_nodes[d], SERVERS)] * demand_in_link[d,l] - server_input[l,member(demand_tasks_destination_nodes[d], SERVERS)] * demand_in_link[d,l]) = 
+		sum {v in VMS} (vm_in_server[v,member(demand_tasks_source_nodes[d], SERVERS)] - vm_in_server[v,member(demand_tasks_destination_nodes[d], SERVERS)]);
+
 
 subject to routers_flow_rule {d in DEMANDS, r in ROUTERS}:
 	sum {l in LINKS} (router_output[l,r] * demand_in_link[d,l]) - sum {l in LINKS} (router_input[l,r] * demand_in_link[d,l]) = 0;
