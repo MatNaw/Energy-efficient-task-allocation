@@ -39,14 +39,14 @@ var vm_in_server {v in VMS, s in SERVERS} binary;
 ################## Subjects ##################
 ######### Unique values of binary variables #########
 # EAS state for servers and links must be unique
-subject to unique_server_state {s in SERVERS}: sum {se in SERVERS_EAS} server_in_eas[s,se] = 1; # >= 1
-subject to unique_link_state {l in LINKS}: sum {le in LINKS_EAS} link_in_eas[l,le] = 1;			# >= 1
+subject to unique_server_state {s in SERVERS}: sum {se in SERVERS_EAS} server_in_eas[s,se] == 1;# >= 1
+subject to unique_link_state {l in LINKS}: sum {le in LINKS_EAS} link_in_eas[l,le] == 1;		# >= 1
 
 # Demand-to-link assignment must be unique
 subject to unique_demand_in_link {d in DEMANDS}: sum {l in LINKS} demand_in_link[d,l] >= 1;		# >= 1
 
 # VM-to-server assignment must be unique
-subject to unique_vm_in_server {v in VMS}: sum {s in SERVERS} vm_in_server[v,s] = 1;			# >= 1
+subject to unique_vm_in_server {v in VMS}: sum {s in SERVERS} vm_in_server[v,s] == 1;			# >= 1
 
 
 ######### Servers and VMs bindings #########
@@ -69,8 +69,13 @@ subject to demand_fulfilled {d in DEMANDS, l in LINKS}:
 	if (server_output[l,member(demand_tasks_source_nodes[d], SERVERS)] == 1 || server_input[l,member(demand_tasks_destination_nodes[d], SERVERS)] == 1)
 		then demand_tasks[d] <= sum {le in LINKS_EAS} (link_capacity[l,le] * demand_in_link[d,l]);
 
-# potential problem above (we should check each EAS separately, not the sum of all of them)
+# 1. Potential problem above (we should check each EAS separately, not the sum of all of them)
 # the same may affect other (similar?) subjects
+
+# subject to demand_fulfilled_2 {d in DEMANDS, s in SERVERS}:
+	# sum {l in LINKS} (server_output[l,s] * demand_in_link[d,l] * demand_tasks[d]) == demand_tasks[d];
+# 2. We need to block the assignment of the demands to other possible links if other (valid) connection already
+# covers it.
 
 
 ######### Flow rules for servers and routers #########
@@ -82,12 +87,11 @@ subject to demand_fulfilled {d in DEMANDS, l in LINKS}:
 #		sum {v in VMS} (vm_in_server[v,member(demand_tasks_source_nodes[d], SERVERS)] - vm_in_server[v,member(demand_tasks_destination_nodes[d], SERVERS)]);
 #		SOMEHOW WE NEED TO GET THE PROPER v	FOR vm_in_server VARIABLES, the above does not work
 subject to servers_flow_rule {d in DEMANDS}:
-	sum {l in LINKS} (server_output[l,member(demand_tasks_source_nodes[d], SERVERS)] * demand_in_link[d,l] - server_input[l,member(demand_tasks_destination_nodes[d], SERVERS)] * demand_in_link[d,l]) = 
+	sum {l in LINKS} (server_output[l,member(demand_tasks_source_nodes[d], SERVERS)] * demand_in_link[d,l] - server_input[l,member(demand_tasks_destination_nodes[d], SERVERS)] * demand_in_link[d,l]) == 
 		sum {v in VMS} (vm_in_server[v,member(demand_tasks_source_nodes[d], SERVERS)] - vm_in_server[v,member(demand_tasks_destination_nodes[d], SERVERS)]);
 
-
 subject to routers_flow_rule {d in DEMANDS, r in ROUTERS}:
-	sum {l in LINKS} (router_output[l,r] * demand_in_link[d,l]) - sum {l in LINKS} (router_input[l,r] * demand_in_link[d,l]) = 0;
+	sum {l in LINKS} (router_output[l,r] * demand_in_link[d,l]) - sum {l in LINKS} (router_input[l,r] * demand_in_link[d,l]) == 0;
 
 ######### Constraints for routers #########
 subject to check_if_switch_input_used {d in DEMANDS, r in ROUTERS}: 
