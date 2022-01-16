@@ -1,114 +1,103 @@
 # Author: Mateusz Nawrot
 
-######### Declarations #########
+################## Declarations ##################
 set SERVERS ordered;
-set INPUT_SERVERS;
-set OUTPUT_SERVERS;
-set SERVER_EAS;
-set VMS;
-set VMS_DEMAND;
-set SWITCHES;
+set SERVERS_EAS;
 set LINKS;
-set LINK_EAS;
+set LINKS_EAS;
+set ROUTERS;
+set DEMANDS;
+set VMS;
 
-# Directed links
-param switch_output {e in LINKS, r in SWITCHES};
-param switch_input {e in LINKS, r in SWITCHES};
-param server_output {e in LINKS, n in SERVERS};
-param server_input {e in LINKS, n in SERVERS};
+param server_input {l in LINKS, s in SERVERS};
+param server_output {l in LINKS, s in SERVERS};
+param server_efficiency_in_eas {s in SERVERS, se in SERVERS_EAS};
+param server_energetic_cost {s in SERVERS, se in SERVERS_EAS};
 
-param network_traffic_demand {d in VMS_DEMAND};
-param source_nodes {d in VMS_DEMAND};
-param destination_nodes {d in VMS_DEMAND};
-param server_efficiency_in_eas {n in SERVERS, q in SERVER_EAS};
-param vm_required_efficiency {m in VMS};
+param link_capacity {l in LINKS, le in LINKS_EAS};
+param link_energetic_cost {l in LINKS, le in LINKS_EAS};
 
-param server_energetic_cost {n in SERVERS, q in SERVER_EAS};
-param link_capacity {e in LINKS, k in LINK_EAS};
-param link_energetic_cost {e in LINKS, k in LINK_EAS};
-param const_router_cost {r in SWITCHES};
+param router_input {l in LINKS, r in ROUTERS};
+param router_output {l in LINKS, r in ROUTERS};
+param router_usage_cost {r in ROUTERS};
 
-######### Variables #########
-var vm_in_server {m in VMS, n in SERVERS} binary;
-var server_in_eas {n in SERVERS, q in SERVER_EAS} binary;
-var demand_in_link {d in VMS_DEMAND, e in LINKS} binary;
-var link_eas_used {e in LINKS, k in LINK_EAS} binary;
-var switch_used {r in SWITCHES} binary;
+param demand_tasks {d in DEMANDS};
+param demand_tasks_source_nodes {d in DEMANDS};
+param demand_tasks_destination_nodes {d in DEMANDS};
+param demand_tasks_route_length {d in DEMANDS};
 
-######### Subjects #########
-# Directed links binary definition
-subject to switch_output_binary_1 {e in LINKS, r in SWITCHES}:
-			switch_output[e,r] >=0;
-subject to switch_output_binary_2 {e in LINKS, r in SWITCHES}:
-			switch_output[e,r] <=1;
+param vm_required_efficiency {v in VMS};
 
-subject to switch_input_binary_1 {e in LINKS, r in SWITCHES}:
-			switch_input[e,r] >=0;
-subject to switch_input_binary_2 {e in LINKS, r in SWITCHES}:
-			switch_input[e,r] <=1;
-
-subject to server_output_binary_1 {e in LINKS, n in SERVERS}:
-			server_output[e,n] >=0;
-subject to server_output_binary_2 {e in LINKS, n in SERVERS}:
-			server_output[e,n] <=1;
-
-subject to server_input_binary_1 {e in LINKS, n in SERVERS}:
-			server_input[e,n] >=0;
-subject to server_input_binary_2 {e in LINKS, n in SERVERS}:
-			server_input[e,n] <=1;
-
-#1
-subject to max_capacity {e in LINKS}: sum {k in LINK_EAS} link_eas_used[e,k] <= 1;
-#2
-subject to unique_server_state {n in SERVERS}: sum {q in SERVER_EAS} server_in_eas[n,q] <= 1;
-#3
-subject to sum_vms_efficiency {n in SERVERS}:
-			sum {m in VMS} (vm_required_efficiency[m] * vm_in_server[m,n]) <= 
-				sum {q in SERVER_EAS} (server_efficiency_in_eas[n,q] * server_in_eas[n,q]);
-#4
-subject to one_vm_per_server {m in VMS}: sum {n in SERVERS} vm_in_server[m,n] = 1;
-#5
-subject to check_if_switch_used_1 {d in VMS_DEMAND, r in SWITCHES}: 
-			sum {e in LINKS} (switch_output[e,r] * demand_in_link[d,e]) <= switch_used[r];
-#6
-subject to check_if_switch_used_2 {d in VMS_DEMAND, r in SWITCHES}:
-			sum {e in LINKS} (switch_input[e,r] * demand_in_link[d,e]) <= switch_used[r];
-#7
-subject to server_flow_rule {d in VMS_DEMAND, m in VMS, n in SERVERS}:
-			sum {e in LINKS} (server_output[e,n] * demand_in_link[d,e] - server_input[e,n] * demand_in_link[d,e]) = 
-					vm_in_server[m,member(source_nodes[d], SERVERS)] - vm_in_server[m,member(destination_nodes[d], SERVERS)];
-#8
-subject to switch_flow_rule {d in VMS_DEMAND, r in SWITCHES}:
-			sum {e in LINKS} (switch_output[e,r] * demand_in_link[d,e]) - sum {e in LINKS} (switch_input[e,r] * demand_in_link[d,e]) = 0;
-#9
-subject to demand_sum_limit {e in LINKS}:
-			sum {d in VMS_DEMAND} (network_traffic_demand[d] * demand_in_link[d,e]) <= sum {k in LINK_EAS} (link_capacity[e,k] * link_eas_used[e,k]);
-
-######### Test subjects to solve the zero-solution issue #########
-######### 1. Division of subject #7 into two separate subjects -> no effect
-#7a
-#subject to server_flow_rule_output {d in VMS_DEMAND, m in VMS, n in SERVERS}:
-#			sum {e in LINKS} (server_output[e,n] * demand_in_link[d,e]) = vm_in_server[m,member(source_nodes[d], SERVERS)];
-#7b
-#subject to server_flow_rule_input {d in VMS_DEMAND, m in VMS, n in SERVERS}:
-#			sum {e in LINKS} (server_input[e,n] * demand_in_link[d,e]) = vm_in_server[m,member(destination_nodes[d], SERVERS)];
-
-######### 2. Right side of original subject #7 changed to '0' -> some returned values are non-zero, but
-######### 	 it seems that the VMs are simply placed in the single server. Maybe that will change when whole energetic model is introduced.
-#7
-#subject to server_flow_rule {d in VMS_DEMAND, m in VMS, n in SERVERS}:
-#			sum {e in LINKS} (server_output[e,n] * demand_in_link[d,e] - server_input[e,n] * demand_in_link[d,e]) = 0;
+################## Variables ##################
+var server_in_eas {s in SERVERS, se in SERVERS_EAS} binary;
+var link_in_eas {l in LINKS, le in LINKS_EAS} binary;
+var router_used {r in ROUTERS} binary;
+var demand_in_link {d in DEMANDS, l in LINKS} binary;
+var demand_in_link_sum {d in DEMANDS} = sum {l in LINKS} (demand_in_link[d,l]);
+var vm_in_server {v in VMS, s in SERVERS} binary;
 
 
 
-######### Objective function #########
-# Server costs
-var server_costs = sum {n in SERVERS, q in SERVER_EAS} (server_energetic_cost[n,q] * server_in_eas[n,q]);
-# Link costs
-var link_costs = sum {e in LINKS, k in LINK_EAS} (link_energetic_cost[e,k] * link_eas_used[e,k]);
-# Router costs
-var router_costs = sum {r in SWITCHES} (const_router_cost[r] * switch_used[r]);
+################## Subjects ##################
+######### Constraints for binary variables #########
+# EAS state for servers and links must be unique
+subject to unique_server_state {s in SERVERS}: sum {se in SERVERS_EAS} server_in_eas[s,se] == 1;
+subject to unique_link_state {l in LINKS}: sum {le in LINKS_EAS} link_in_eas[l,le] == 1;
 
+# Demand-to-link assignment must exist
+subject to unique_demand_in_link {d in DEMANDS}: sum {l in LINKS} demand_in_link[d,l] >= 1;
+
+# VM-to-server assignment must be unique
+subject to unique_vm_in_server {v in VMS}: sum {s in SERVERS} vm_in_server[v,s] == 1;
+
+
+######### Servers and VMs bindings #########
+# Server efficiency must not be exceeded by running VMs
+subject to server_efficiency_not_exceeded {s in SERVERS}:
+	sum {v in VMS} (vm_required_efficiency[v] * vm_in_server[v,s]) <= sum {se in SERVERS_EAS} (server_efficiency_in_eas[s,se] * server_in_eas[s,se]);
+
+# Each VM must be fully covered by assigned servers
+subject to vm_efficiency_fulfilled {v in VMS}:
+	vm_required_efficiency[v] <= sum {s in SERVERS, se in SERVERS_EAS} (server_efficiency_in_eas[s,se] * server_in_eas[s,se] * vm_in_server[v,s]);
+
+
+######### Links and demands bindings #########
+# Link capacity must not be exceeded by processed demands
+subject to link_capacity_not_exceeded {l in LINKS}:
+	sum {d in DEMANDS} (demand_tasks[d] * demand_in_link[d,l]) <= sum {le in LINKS_EAS} (link_capacity[l,le] * link_in_eas[l,le]);
+
+# Each demand must be fully covered by assigned links
+subject to demand_fulfilled {d in DEMANDS, l in LINKS}:
+	if ((server_output[l,member(demand_tasks_source_nodes[d], SERVERS)] == 1
+		|| server_input[l,member(demand_tasks_destination_nodes[d], SERVERS)] == 1)
+		&& demand_in_link_sum[d] != demand_tasks_route_length[d])
+	then demand_tasks[d] <= sum {le in LINKS_EAS} (link_capacity[l,le] * link_in_eas[l,le] * demand_in_link[d,l]);
+# We need to block the assignment of the demands to other possible links if other valid connection already covers it:
+subject to demand_fulfilled_2 {d in DEMANDS}: demand_in_link_sum[d] == demand_tasks_route_length[d];
+# Above solution seems to work, but how to improve it? (so that I don't need the parameter `demand_tasks_route_length[d]`)
+
+
+######### Flow rules for servers and routers #########
+subject to servers_flow_rule {d in DEMANDS}:
+	sum {l in LINKS} ((server_output[l,member(demand_tasks_source_nodes[d], SERVERS)] - server_input[l,member(demand_tasks_destination_nodes[d], SERVERS)]) * demand_in_link[d,l]) == 
+		sum {v in VMS} (vm_in_server[v,member(demand_tasks_source_nodes[d], SERVERS)] - vm_in_server[v,member(demand_tasks_destination_nodes[d], SERVERS)]);
+
+subject to routers_flow_rule {d in DEMANDS, r in ROUTERS}:
+	sum {l in LINKS} (router_output[l,r] * demand_in_link[d,l]) - sum {l in LINKS} (router_input[l,r] * demand_in_link[d,l]) == 0;
+
+######### Constraints for routers #########
+subject to check_if_switch_input_used {d in DEMANDS, r in ROUTERS}: 
+	sum {l in LINKS} (router_input[l,r] * demand_in_link[d,l]) <= router_used[r];
+subject to check_if_switch_output_used {d in DEMANDS, r in ROUTERS}:
+	sum {l in LINKS} (router_output[l,r] * demand_in_link[d,l]) <= router_used[r];
+
+
+
+################## Objective function ##################
+var server_costs = sum {s in SERVERS, se in SERVERS_EAS} (server_energetic_cost[s,se] * server_in_eas[s,se]);
+var link_costs = sum {l in LINKS, le in LINKS_EAS} (link_energetic_cost[l,le] * link_in_eas[l,le]);
+var router_costs = sum {r in ROUTERS} (router_usage_cost[r] * router_used[r]);
 var total_cost = server_costs + link_costs + router_costs;
 
 minimize TotalCost: total_cost;
+minimize ServerCosts: server_costs;
