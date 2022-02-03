@@ -1,0 +1,69 @@
+# Author: Mateusz Nawrot
+# option cplex_options 'presolve=0';
+# option cplex_options 'dual dualopt';
+objective TotalCost;
+solve;
+
+printf "\n-------------Costs:-------------\n";
+printf "TotalCost: %.4f\n", TotalCost;
+
+printf "\nserver_costs: %.1f\n", server_costs;
+printf "link_costs: %.1f\n", link_costs;
+printf "router_costs: %.1f\n", router_costs;
+
+printf "old_server_costs: %.1f\n", old_server_costs;
+
+# printf "\n-------------Server setup ('S1'):-------------\n";
+# for {se in SERVERS_EAS} {
+# 	printf "server_efficiency_in_eas[S1,%s]: %.1f\n", se, server_efficiency_in_eas['S1', se];
+# }
+# printf "\n";
+# for {se in SERVERS_EAS} {
+# 	printf "server_energetic_cost[S1,%s]: %.1f\n", se, server_energetic_cost['S1', se];
+# }
+
+# for {v in VMS} {
+# 	display sum {s in SERVERS, se in SERVERS_EAS} (server_efficiency_in_eas[s,se] * server_in_eas[s,se] * vm_in_server[v,s]);
+# 	display sum {s in SERVERS, se in SERVERS_EAS} (server_efficiency_in_eas[s,se] * vm_in_server[v,s]);
+# }
+
+printf "\n-------------Binary variables:-------------\n";
+display server_in_eas;
+display link_in_eas;
+display router_used;
+# display demand_in_link;
+display sum {v in VMS, l in LINKS} vm_in_link[v,l];
+display vm_in_link;
+display vm_in_server;
+
+# printf "D1 demand:\n";
+# display member(demand_tasks_source_nodes['D1'], SERVERS);
+# display member(demand_tasks_destination_nodes['D1'], SERVERS);
+# printf "D2 demand:\n";
+#  display member(demand_tasks_source_nodes['D2'], SERVERS);
+# display member(demand_tasks_destination_nodes['D2'], SERVERS);
+# printf "D3 demand:\n";
+# display member(demand_tasks_source_nodes['D3'], SERVERS);
+# display member(demand_tasks_destination_nodes['D3'], SERVERS);
+# printf "D4 demand:\n";
+# display member(demand_tasks_source_nodes['D4'], SERVERS);
+# display member(demand_tasks_destination_nodes['D4'], SERVERS);
+
+# printf "Source nodes:\n";
+# display vm_in_server['V1',member(demand_tasks_source_nodes['D1'], SERVERS)];
+# display vm_in_server['V1',member(demand_tasks_source_nodes['D2'], SERVERS)];
+# display vm_in_server['V2',member(demand_tasks_source_nodes['D1'], SERVERS)];
+# display vm_in_server['V2',member(demand_tasks_source_nodes['D2'], SERVERS)];
+# printf "Destination nodes:\n";
+# display vm_in_server['V1',member(demand_tasks_destination_nodes['D1'], SERVERS)];
+# display vm_in_server['V1',member(demand_tasks_destination_nodes['D2'], SERVERS)];
+# display vm_in_server['V2',member(demand_tasks_destination_nodes['D1'], SERVERS)];
+# display vm_in_server['V2',member(demand_tasks_destination_nodes['D2'], SERVERS)];
+
+# for {d in DEMANDS} {
+# 	for {s in SERVERS} {
+# 		display d;
+# 		display s;
+# 		display sum {l in LINKS} (server_output[l,s] * demand_in_link[d,l] * demand_tasks[d]);
+# 	}
+# }
