@@ -138,10 +138,12 @@ var total_cost = server_costs + link_costs + router_costs;
 # subject to test_total_costs_upper_bound:
 # 	total_cost <= old_server_costs;
 # subject to test_total_costs_lower_bound:
-# 	total_cost >= 1;
+# 	total_cost >= 1.0;
+# subject to test_server_costs_lower_bound:
+# 	server_costs >= 1.0;
 
 # subject to test_vm_in_link:
-# 	total_cost <= old_server_costs ==> sum {v in VMS, l in LINKS} vm_in_link[v,l] >= 1;
+# 	total_cost >= old_server_costs ==> sum {v in VMS, l in LINKS} vm_in_link[v,l] >= 1;
 
 minimize TotalCost: total_cost;
 minimize ServerCosts: server_costs;
