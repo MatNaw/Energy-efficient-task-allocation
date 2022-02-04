@@ -7,11 +7,15 @@ solve;
 printf "\n-------------Costs:-------------\n";
 printf "TotalCost: %.4f\n", TotalCost;
 
-printf "\nserver_costs: %.1f\n", server_costs;
-printf "link_costs: %.1f\n", link_costs;
-printf "router_costs: %.1f\n", router_costs;
+printf "\nserver_costs: %.2f\n", server_costs;
+printf "link_costs: %.2f\n", link_costs;
+printf "router_costs: %.2f\n", router_costs;
 
-printf "old_server_costs: %.1f\n", old_server_costs;
+printf "\nold_server_costs: %.2f\n", old_server_costs;
+if(server_costs <= old_server_costs)
+then printf "\nNew server costs are lower than or equal to old server costs (%.2f vs %.2f). :)\n", server_costs, old_server_costs;
+if(server_costs > old_server_costs)
+then printf "\nNew server costs are higher than old server costs (%.2f vs %.2f)! :(\n", server_costs, old_server_costs;
 
 # printf "\n-------------Server setup ('S1'):-------------\n";
 # for {se in SERVERS_EAS} {

@@ -109,18 +109,19 @@ subject to vm_migration_fulfilled {v in VMS, l in LINKS}:
 # 	sum {l in LINKS} ((server_output[l,s] - server_input[l,s]) * demand_in_link[d,l]) == 
 # 		sum {v in VMS} (vm_server_assignment[v,s] - vm_in_server[v,s]);
 
-# concept
-subject to servers_flow_rule {v in VMS, s in SERVERS}:
-	# hardcoded 'vm_in_link' -> no effect on 'vm_in_server' (equal to 'vm_server_assignment')
+### concepts
+# hardcoded 'vm_in_link' -> no effect on 'vm_in_server' (equal to 'vm_server_assignment')
+# subject to servers_flow_rule {v in VMS, s in SERVERS}:
 	# vm_server_assignment[v,s] == 1 ==>
 	# 	sum {l in LINKS} (server_output[l,s] * vm_server_assignment[v,s] / 2) == vm_in_server[v,s] + sum {l in LINKS} (server_input[l,s] * vm_in_link[v,l] / 2);
 
-	# hardcoded 'vm_in_link' -> with effect on 'vm_in_server' (copy of 'vm_server_assignment', but with all proper VMs moved)
+# hardcoded 'vm_in_link' -> with effect on 'vm_in_server' (copy of 'vm_server_assignment', but with all proper VMs moved)
+subject to servers_flow_rule {v in VMS, s in SERVERS}:
 	sum {l in LINKS} ((server_output[l,s] - server_input[l,s]) * vm_in_link[v,l]) == vm_server_assignment[v,s] - vm_in_server[v,s];
 
 
-# subject to routers_flow_rule {v in VMS, r in ROUTERS}:
-# 	sum {l in LINKS} (router_output[l,r] * vm_in_link[v,l]) - sum {l in LINKS} (router_input[l,r] * vm_in_link[v,l]) == 0;
+subject to routers_flow_rule {v in VMS, r in ROUTERS}:
+	sum {l in LINKS} (router_output[l,r] * vm_in_link[v,l]) - sum {l in LINKS} (router_input[l,r] * vm_in_link[v,l]) == 0;
 
 ######### Constraints for routers #########
 subject to check_if_switch_input_used {v in VMS, r in ROUTERS}: 
