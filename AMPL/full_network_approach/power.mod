@@ -61,23 +61,22 @@ subject to vm_efficiency_fulfilled {v in VMS}:
 
 ######### Links and demands bindings #########
 # Link capacity must not be exceeded by processed demands for source and target VMs
-subject to link_capacity_not_exceeded_source_link {l in LINKS, vs in VMS, vd in VMS}:
+subject to link_capacity_not_exceeded_source_link {l in LINKS, s in SERVERS, vs in VMS, vd in VMS}:
 	# sum {d in DEMANDS} (demand_tasks[d] * vm_demand_source[vs,d] * vm_demand_target[vd,d] * demand_in_link[d,l])
 	# 	<= sum {le in LINKS_EAS} (link_capacity[l,le] * link_in_eas[l,le]);
-	sum {d in DEMANDS} (demand_tasks[d] * vm_demand_source[vs,d] * demand_in_link[d,l])
+	sum {d in DEMANDS} (demand_tasks[d] * vm_demand_source[vs,d] * vm_demand_target[vd,d] * demand_in_link[d,l] * server_output[l,s])
 		<= sum {le in LINKS_EAS} (link_capacity[l,le] * link_in_eas[l,le]);
-subject to link_capacity_not_exceeded_target_link {l in LINKS, vs in VMS, vd in VMS}:
-	sum {d in DEMANDS} (demand_tasks[d] * vm_demand_target[vd,d] * demand_in_link[d,l])
+subject to link_capacity_not_exceeded_target_link {l in LINKS, s in SERVERS, vs in VMS, vd in VMS}:
+	sum {d in DEMANDS} (demand_tasks[d] * vm_demand_source[vs,d] * vm_demand_target[vd,d] * demand_in_link[d,l] * server_input[l,s])
 		<= sum {le in LINKS_EAS} (link_capacity[l,le] * link_in_eas[l,le]);
 
 # Each demand must be fully covered by assigned links for source and target VMs
 subject to demand_fulfilled_source_vm {d in DEMANDS, s in SERVERS, vs in VMS, vd in VMS}:
-	demand_tasks[d] * vm_demand_source[vs,d] * (vm_in_server[vs,s] - vm_in_server[vd,s])
+	demand_tasks[d] * vm_demand_source[vs,d] * vm_demand_target[vd,d] * (vm_in_server[vs,s] - vm_in_server[vd,s])
 		<= sum {l in LINKS, le in LINKS_EAS} (link_capacity[l,le] * link_in_eas[l,le] * demand_in_link[d,l] * server_output[l,s]);
 subject to demand_fulfilled_target_vm {d in DEMANDS, s in SERVERS, vs in VMS, vd in VMS}:
-	demand_tasks[d] * vm_demand_target[vd,d] * (vm_in_server[vd,s] - vm_in_server[vs,s])
+	demand_tasks[d] * vm_demand_source[vs,d] * vm_demand_target[vd,d] * (vm_in_server[vd,s] - vm_in_server[vs,s])
 		<= sum {l in LINKS, le in LINKS_EAS} (link_capacity[l,le] * link_in_eas[l,le] * demand_in_link[d,l] * server_input[l,s]);
-
 
 
 ######### Flow rules for servers and routers #########

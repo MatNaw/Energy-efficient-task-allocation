@@ -1,5 +1,4 @@
 # Author: Mateusz Nawrot
-# option cplex_options 'presolve=0';
 objective TotalCost;
 solve;
 
