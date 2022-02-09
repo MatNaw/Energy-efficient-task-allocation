@@ -24,13 +24,13 @@ public class Constants {
     public final static double SCHEDULING_INTERVAL = 300;
     public final static double SIMULATION_LIMIT = 60 * 60;
 
-    public final static int CLOUDLET_LENGTH = 2500 * (int) SIMULATION_LIMIT;
+    public final static int CLOUDLET_LENGTH = 25000 * (int) SIMULATION_LIMIT;
     public final static int CLOUDLET_PES = 1;
 
     // Change the value of 'TEST_HOST_SPECIFICATION' below to choose desired server type for the simulation
-    public final static HostSpecification TEST_HOST_SPECIFICATION = HostSpecification.HpProLiantMl110G3PentiumD930();
+    public final static HostSpecification TEST_HOST_SPECIFICATION = HostSpecification.IbmX3550XeonX5675();
     public final static VmSpecification TEST_VM_SPECIFICATION = new VmSpecification(TEST_HOST_SPECIFICATION,
-                                                                                    AmplNetworkType.SMALL);
+                                                                                    AmplNetworkType.BIG);
 
     /*
      * VM instance types:

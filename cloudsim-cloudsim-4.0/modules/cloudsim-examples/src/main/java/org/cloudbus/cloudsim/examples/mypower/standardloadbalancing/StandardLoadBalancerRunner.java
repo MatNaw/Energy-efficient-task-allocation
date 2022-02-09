@@ -7,8 +7,8 @@ public class StandardLoadBalancerRunner {
     public static void main(final String[] args) {
         final int NUMBER_OF_SERVERS = 4;
         final ServerType SERVER_TYPE = ServerType.IbmX5675();
-        final int NUMBER_OF_VMS = 31;
-        final int VM_OPERATIONS_PER_SECOND = 5000;
+        final int NUMBER_OF_VMS = 20;
+        final int VM_OPERATIONS_PER_SECOND = 41000;
 
         final List<Vm> vms = createTaskQueue(VM_OPERATIONS_PER_SECOND, NUMBER_OF_VMS);
         final List<Server> servers = createServers(SERVER_TYPE, NUMBER_OF_SERVERS);

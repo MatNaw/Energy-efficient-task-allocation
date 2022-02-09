@@ -22,8 +22,8 @@ import lombok.Getter;
 @Getter
 public class VmSpecification {
     // static values of OPS (Operations Per Second) used during the AMPL solution researches for small and big network
-    final static int AMPL_VM_OPS_SMALL_NETWORK = 5000;
-    final static int AMPL_VM_OPS_BIG_NETWORK = 50000;
+    final static int AMPL_VM_OPS_SMALL_NETWORK = 41000;
+    final static int AMPL_VM_OPS_BIG_NETWORK = 300000;
 
     private final int mips;
     private final AmplNetworkType amplNetworkType;

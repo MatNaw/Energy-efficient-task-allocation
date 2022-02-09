@@ -23,7 +23,7 @@ public class MyPowerRunnerHelper {
             : 20; // big network
     public final static int NUMBER_OF_VMS = Constants.TEST_HOST_SPECIFICATION.getPes() *
             (Constants.TEST_VM_SPECIFICATION.getAmplNetworkType() == AmplNetworkType.SMALL
-                    ? 40 //31  // small network
+                    ? 20 //31  // small network
                     : 10); //20 // big network
 
     /**
