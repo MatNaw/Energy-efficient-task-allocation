@@ -26,7 +26,8 @@ param demand_tasks {d in DEMANDS};
 param vm_required_efficiency {v in VMS};
 param vm_demand_source {v in VMS, d in DEMANDS};
 param vm_demand_target {v in VMS, d in DEMANDS};
-# param vm_to_vm {vs in VMS, vd in VMS};
+
+
 
 ################## Variables ##################
 var server_in_eas {s in SERVERS, se in SERVERS_EAS} binary;
@@ -79,30 +80,6 @@ subject to demand_fulfilled_target_vm {d in DEMANDS, s in SERVERS, vs in VMS, vd
 		<= sum {l in LINKS, le in LINKS_EAS} (link_capacity[l,le] * link_in_eas[l,le] * demand_in_link[d,l] * server_input[l,s]);
 
 
-######### Flow rules for servers and routers #########
-# working 'a bit':
-# subject to servers_flow_rule {d in DEMANDS, s in SERVERS, vs in VMS, vd in VMS}:
-# 	sum {l in LINKS} ((server_output[l,s] * vm_to_vm[vs,vd] * vm_demand_source[vs,d]
-# 		- server_input[l,s] * vm_to_vm[vd,vs] * vm_demand_target[vd,d]) * demand_in_link[d,l]) == 0;
-	# == vm_in_server[vs,s] - vm_in_server[vd,s] ?
-	# adding 'vm_demand_source[vs,d]' and 'vm_demand_target[vd,d]' seems to not have an effect
-# subject to servers_flow_rule {d in DEMANDS, s in SERVERS, v in VMS}:
-    # sum {l in LINKS} ((server_output[l,s] * vm_demand_source[v,d] - server_input[l,s] * vm_demand_target[v,d]) * demand_in_link[d,l]) == 0;
-# subject to servers_flow_rule {d in DEMANDS, v in VMS}:
-	# sum {l in LINKS, s in SERVERS} (server_output[l,s] * vm_demand_source[v,d] * demand_in_link[d,l] - server_input[l,s] * vm_demand_target[v,d] * demand_in_link[d,l]) == sum {s in SERVERS} vm_in_server[v,s];
-	# sum {l in LINKS} ((server_output[l,s] * vm_demand_source[vs,d] - server_input[l,s] * vm_demand_target[vd,d]) * demand_in_link[d,l]) == 0;
-	# if (vm_demand_source[v,d] == 1 || vm_demand_target[v,d] == 1)
-	# then sum {l in LINKS} (server_output[l,s] * vm_demand_source[v,d] * demand_in_link[d,l] - server_input[l,s] * vm_demand_target[v,d] * demand_in_link[d,l]) == vm_demand_source[v,d] - vm_demand_target[v,d];
-
-
-# subject to routers_flow_rule {d in DEMANDS, r in ROUTERS, vs in VMS, vd in VMS}:
-# 	sum {l in LINKS} ((router_output[l,r] * vm_to_vm[vd,vs] * vm_demand_target[vd,d]
-# 		- router_input[l,r] * vm_to_vm[vs,vd] * vm_demand_source[vs,d]) * demand_in_link[d,l]) == 0;
-# subject to routers_flow_rule {d in DEMANDS, r in ROUTERS, vs in VMS, vd in VMS}:
-# 	sum {l in LINKS} ((router_output[l,r] * vm_demand_target[vd,d]
-# 		- router_input[l,r] * vm_demand_source[vs,d]) * demand_in_link[d,l]) == 0;
-
-
 ######### Constraints for routers #########
 subject to check_if_switch_input_used {d in DEMANDS, r in ROUTERS}: 
 	sum {l in LINKS} (router_input[l,r] * demand_in_link[d,l]) <= router_used[r];
@@ -117,8 +94,7 @@ var link_costs = sum {l in LINKS, le in LINKS_EAS} (link_energetic_cost[l,le] * 
 var router_costs = sum {r in ROUTERS} (router_usage_cost[r] * router_used[r]);
 var total_cost = server_costs + link_costs + router_costs;
 
-subject to min_total_cost:
-	total_cost >= 1;
+subject to min_total_cost: total_cost >= 1;
 
 minimize TotalCost: total_cost;
 minimize ServerCosts: server_costs;

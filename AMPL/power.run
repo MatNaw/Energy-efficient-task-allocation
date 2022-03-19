@@ -1,4 +1,5 @@
 # Author: Mateusz Nawrot
+
 objective TotalCost;
 solve;
 
